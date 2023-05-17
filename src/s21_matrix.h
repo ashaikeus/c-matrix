@@ -26,7 +26,7 @@ int s21_calc_complements(matrix_t *A, matrix_t *result);
 int s21_determinant(matrix_t *A, double *result);
 int s21_inverse_matrix(matrix_t *A, matrix_t *result);
 
-int empty_check(matrix_t M);
+int is_incorrect(matrix_t *M);
 void print_matrix(matrix_t M);
 
 #endif
