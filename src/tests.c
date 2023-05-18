@@ -380,7 +380,7 @@ START_TEST(det_1) {
     }
   }
   ck_assert_int_eq(0, s21_determinant(&a, &result));
-  ck_assert_double_eq_tol(result, -3, S21_EPS);
+  ck_assert_double_eq_tol(result, 0, S21_EPS);
     s21_remove_matrix(&a);
 }
 END_TEST
@@ -480,7 +480,6 @@ START_TEST(inv_3) {
   true_result.matrix[1][0] = 1.5;
   true_result.matrix[1][1] = -0.5;
   ck_assert_int_eq(0, s21_inverse_matrix(&a, &result));
-  print_matrix(result);
   ck_assert_int_eq(1, s21_eq_matrix(&result, &true_result));
     s21_remove_matrix(&a);
     s21_remove_matrix(&result);

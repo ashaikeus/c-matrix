@@ -177,10 +177,13 @@ double det_processing(matrix_t *A, double *result) {
     for (int j = 0; j < A->columns; j++) {
       matrix_t minored = {0};
       get_minor_matrix(A, 0, j, &minored);
-      temp += det_processing(&minored, &temp) * sign;
+      temp += A->matrix[0][j] * det_processing(&minored, &temp) * sign;
       sign = -sign;
     }
     return temp;
+
+    // result += sign * A[0][i] * determinant(tmp.matrix, size - 1);
+    // sign = -sign;
 }
 
 // int main() {
