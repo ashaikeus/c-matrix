@@ -106,7 +106,11 @@ int s21_calc_complements(matrix_t *A, matrix_t *result) {
   // else if (A->rows != result->columns || A->columns != result->rows) ret = 2;
   else for (int i = 0; i < A->rows; i++)
       for (int j = 0; j < A->columns; j++) {
-        result->matrix[i][j] = A->matrix[i][j];
+        matrix_t minor = {0};
+        get_minor_matrix(A, i, j, &minor);
+        double minor_det = 0.0;
+        s21_determinant(&minor, &minor_det);
+        result->matrix[i][j] = pow(-1, i + j) * minor_det;
       }
   return ret;
 }
