@@ -12,7 +12,7 @@ style:
 	clang-format -i *.c *.h
 
 checks: style
-	gcc $(FLAGS) $(CODE_FILES) $(TEST_FILES)
+	gcc $(FLAGS) $(CODE_FILES) $(TEST_FILES) $(LIB_FLAGS)
 	cppcheck *.c *.h
 
 clean:

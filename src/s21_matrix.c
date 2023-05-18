@@ -39,7 +39,8 @@ int s21_eq_matrix(matrix_t *A, matrix_t *B) {
 
 int s21_sum_matrix(matrix_t *A, matrix_t *B, matrix_t *result) {
   int ret = 0;
-  if (is_incorrect(A) || is_incorrect(B) || is_incorrect(result)) ret = 1;
+  if (is_incorrect(A) || is_incorrect(B) || is_incorrect(result))
+    ret = 1;
   else if ((A->rows != B->rows) || (A->columns != B->columns))
     ret = 2;
   else {
@@ -54,7 +55,8 @@ int s21_sum_matrix(matrix_t *A, matrix_t *B, matrix_t *result) {
 
 int s21_sub_matrix(matrix_t *A, matrix_t *B, matrix_t *result) {
   int ret = 0;
-  if (is_incorrect(A) || is_incorrect(B) || is_incorrect(result)) ret = 1;
+  if (is_incorrect(A) || is_incorrect(B) || is_incorrect(result))
+    ret = 1;
   else if ((A->rows != B->rows) || (A->columns != B->columns))
     ret = 2;
   else
@@ -67,20 +69,24 @@ int s21_sub_matrix(matrix_t *A, matrix_t *B, matrix_t *result) {
 
 int s21_mult_number(matrix_t *A, double number, matrix_t *result) {
   int ret = 0;
-  if (is_incorrect(A) || is_incorrect(result)) ret = 1;
-  else for (int i = 0; i < A->rows; i++)
-    for (int j = 0; j < A->columns; j++) {
-      result->matrix[i][j] = A->matrix[i][j] * number;
-    }
+  if (is_incorrect(A) || is_incorrect(result))
+    ret = 1;
+  else
+    for (int i = 0; i < A->rows; i++)
+      for (int j = 0; j < A->columns; j++) {
+        result->matrix[i][j] = A->matrix[i][j] * number;
+      }
   return ret;
 }
 
 int s21_mult_matrix(matrix_t *A, matrix_t *B, matrix_t *result) {
   int ret = 0;
-  if (is_incorrect(A) || is_incorrect(B) || is_incorrect(result)) ret = 1;
+  if (is_incorrect(A) || is_incorrect(B) || is_incorrect(result))
+    ret = 1;
   else if (A->rows != B->columns)
     ret = 2;
-  else for (int i = 0; i < A->rows; i++)
+  else
+    for (int i = 0; i < A->rows; i++)
       for (int j = 0; j < B->columns; j++) {
         result->matrix[i][j] = 0;
         for (int k = 0; k < B->rows; k++)
@@ -93,7 +99,8 @@ int s21_transpose(matrix_t *A, matrix_t *result) {
   int ret = 0;
   if (is_incorrect(A)) ret = 1;
   // else if (A->rows != result->columns || A->columns != result->rows) ret = 2;
-  else for (int i = 0; i < A->rows; i++)
+  else
+    for (int i = 0; i < A->rows; i++)
       for (int j = 0; j < A->columns; j++) {
         result->matrix[j][i] = A->matrix[i][j];
       }
@@ -104,25 +111,30 @@ int s21_calc_complements(matrix_t *A, matrix_t *result) {
   int ret = 0;
   if (is_incorrect(A)) ret = 1;
   // else if (A->rows != result->columns || A->columns != result->rows) ret = 2;
-  else for (int i = 0; i < A->rows; i++)
+  else {
+    matrix_t temp;
+    s21_create_matrix(A->rows, A->columns, &temp);
+    s21_transpose(A, &temp);
+    for (int i = 0; i < A->rows; i++)
       for (int j = 0; j < A->columns; j++) {
         matrix_t minor = {0};
-        get_minor_matrix(A, i, j, &minor);
+        get_minor_matrix(&temp, i, j, &minor);
         double minor_det = 0.0;
         s21_determinant(&minor, &minor_det);
         result->matrix[i][j] = pow(-1, i + j) * minor_det;
       }
+  }
   return ret;
 }
 
 int s21_determinant(matrix_t *A, double *result) {
   int ret = 0;
-  double temp = 0.0;
-  // *result = 0.0;
-  if (is_incorrect(A)) ret = 1;
-  else if (A->rows != A->columns) ret = 2;
+  if (is_incorrect(A))
+    ret = 1;
+  else if (A->rows != A->columns)
+    ret = 2;
   else {
-    *result = det_processing(A, result);
+    *result = det_processing(A);
   }
   return ret;
 }
@@ -131,14 +143,15 @@ int s21_inverse_matrix(matrix_t *A, matrix_t *result) {
   int ret = 0;
   double det = 0.0;
   s21_determinant(A, &det);
-  if (is_incorrect(A) || is_incorrect(result) || A->columns != A->rows) ret = 1;
-  else if (fabs(det) < S21_EPS) ret = 2;
+  if (is_incorrect(A) || is_incorrect(result) || A->columns != A->rows)
+    ret = 1;
+  else if (fabs(det) < S21_EPS)
+    ret = 2;
   else {
     matrix_t temp;
     s21_create_matrix(A->rows, A->columns, &temp);
     // s21_transpose(A, &temp);
     s21_calc_complements(A, &temp);
-    s21_transpose(&temp, &temp);
     s21_mult_number(&temp, 1 / det, result);
     s21_remove_matrix(&temp);
   }
@@ -169,21 +182,20 @@ void get_minor_matrix(matrix_t *M, int row, int col, matrix_t *result) {
   }
 }
 
-double det_processing(matrix_t *A, double *result) {
-    int sign = 1;
-    double temp = 0.0;
-    if (A->rows == 1) return A->matrix[0][0];
-    if (A->rows == 2) return (A->matrix[0][0] * A->matrix[1][1]) - (A->matrix[1][0] * A->matrix[0][1]);
-    for (int j = 0; j < A->columns; j++) {
-      matrix_t minored = {0};
-      get_minor_matrix(A, 0, j, &minored);
-      temp += A->matrix[0][j] * det_processing(&minored, &temp) * sign;
-      sign = -sign;
-    }
-    return temp;
-
-    // result += sign * A[0][i] * determinant(tmp.matrix, size - 1);
-    // sign = -sign;
+double det_processing(matrix_t *A) {
+  int sign = 1;
+  double temp = 0.0;
+  if (A->rows == 1) return A->matrix[0][0];
+  if (A->rows == 2)
+    return (A->matrix[0][0] * A->matrix[1][1]) -
+           (A->matrix[1][0] * A->matrix[0][1]);
+  for (int j = 0; j < A->columns; j++) {
+    matrix_t minored = {0};
+    get_minor_matrix(A, 0, j, &minored);
+    temp += A->matrix[0][j] * det_processing(&minored) * sign;
+    sign = -sign;
+  }
+  return temp;
 }
 
 // int main() {
