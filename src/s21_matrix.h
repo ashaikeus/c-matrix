@@ -3,10 +3,11 @@
 
 #define SUCCESS 1
 #define FAILURE 0
-#define S21_EPS 1e-7
+#define S21_EPS 1e-6
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 typedef struct matrix_struct {
   double **matrix;
@@ -28,5 +29,7 @@ int s21_inverse_matrix(matrix_t *A, matrix_t *result);
 
 int is_incorrect(matrix_t *M);
 void print_matrix(matrix_t M);
+void get_minor_matrix(matrix_t *M, int row, int col, matrix_t *result);
+double det_processing(matrix_t *A, double *result);
 
 #endif
