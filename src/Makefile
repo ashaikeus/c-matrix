@@ -16,7 +16,7 @@ checks: style
 	cppcheck *.c *.h
 
 clean:
-	rm -rf report *.a *.o *.gcda *.gcno *.gcov *.info test ./a.out
+	rm -rf report *.a *.o *.gcda *.gcno *.gcov *.info test ./a.out *.dSYM
 
 test: clean s21_matrix.a
 	gcc $(TEST_FILES) -o test s21_matrix.a -lcheck

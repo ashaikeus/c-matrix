@@ -3,6 +3,8 @@
 int s21_create_matrix(int rows, int columns, matrix_t *result) {
   int status = 0;
 
+  if (rows <= 0 || columns <= 0) return 2;
+
   result->rows = rows;
   result->columns = columns;
   result->matrix = calloc(rows, sizeof(double *));
@@ -15,14 +17,14 @@ int s21_create_matrix(int rows, int columns, matrix_t *result) {
 }
 
 void s21_remove_matrix(matrix_t *A) {
-  for (int i = 0; i < A->rows; i++) {
-    free(A->matrix[i]);
-  }
-  free(A->matrix);
+  if (A) if (A->matrix) {
+    for (int i = 0; i < A->rows; i++) free(A->matrix[i]);
 
-  A->rows = 0;
-  A->columns = 0;
-  A->matrix = NULL;
+    free(A->matrix);
+    A->matrix = NULL;
+    A->rows = 0;
+    A->columns = 0;
+  }
 }
 
 int s21_eq_matrix(matrix_t *A, matrix_t *B) {
@@ -39,12 +41,12 @@ int s21_eq_matrix(matrix_t *A, matrix_t *B) {
 
 int s21_sum_matrix(matrix_t *A, matrix_t *B, matrix_t *result) {
   int ret = 0;
-  if (is_incorrect(A) || is_incorrect(B) || is_incorrect(result))
+  if (is_incorrect(A) || is_incorrect(B))
     ret = 1;
   else if ((A->rows != B->rows) || (A->columns != B->columns))
     ret = 2;
   else {
-    s21_create_matrix(A->rows, A->columns, result);
+    if (!result->matrix) s21_create_matrix(A->rows, A->columns, result);
     for (int i = 0; i < A->rows; i++)
       for (int j = 0; j < A->columns; j++) {
         result->matrix[i][j] = A->matrix[i][j] + B->matrix[i][j];
@@ -55,43 +57,49 @@ int s21_sum_matrix(matrix_t *A, matrix_t *B, matrix_t *result) {
 
 int s21_sub_matrix(matrix_t *A, matrix_t *B, matrix_t *result) {
   int ret = 0;
-  if (is_incorrect(A) || is_incorrect(B) || is_incorrect(result))
+  if (is_incorrect(A) || is_incorrect(B))
     ret = 1;
   else if ((A->rows != B->rows) || (A->columns != B->columns))
     ret = 2;
-  else
+  else {
+    if (!result->matrix) { printf("hey"); s21_create_matrix(A->rows, A->columns, result);}
     for (int i = 0; i < A->rows; i++)
       for (int j = 0; j < A->columns; j++) {
         result->matrix[i][j] = A->matrix[i][j] - B->matrix[i][j];
       }
+  }
   return ret;
 }
 
 int s21_mult_number(matrix_t *A, double number, matrix_t *result) {
   int ret = 0;
-  if (is_incorrect(A) || is_incorrect(result))
+  if (is_incorrect(A))
     ret = 1;
-  else
+  else {
+    if (!result->matrix) s21_create_matrix(A->rows, A->columns, result);
     for (int i = 0; i < A->rows; i++)
       for (int j = 0; j < A->columns; j++) {
         result->matrix[i][j] = A->matrix[i][j] * number;
       }
+  }
   return ret;
 }
 
 int s21_mult_matrix(matrix_t *A, matrix_t *B, matrix_t *result) {
   int ret = 0;
-  if (is_incorrect(A) || is_incorrect(B) || is_incorrect(result))
+  if (is_incorrect(A) || is_incorrect(B))
     ret = 1;
   else if (A->rows != B->columns)
     ret = 2;
-  else
+  else {
+    if (!result->matrix) s21_create_matrix(A->rows, B->columns, result);
     for (int i = 0; i < A->rows; i++)
       for (int j = 0; j < B->columns; j++) {
         result->matrix[i][j] = 0;
         for (int k = 0; k < B->rows; k++)
           result->matrix[i][j] += A->matrix[i][k] * B->matrix[k][j];
       }
+  }
   return ret;
 }
 
@@ -200,17 +208,23 @@ double det_processing(matrix_t *A) {
 
 // int main() {
 //   matrix_t a = {0};
-//   s21_create_matrix(3, 3, &a);
-//   double result = 0.0;
-//   int c = 1;
-//   for (int i = 0; i < 3; i++) {
+//   s21_create_matrix(2, 3, &a);
+//   matrix_t b = {0};
+//   s21_create_matrix(2, 3, &b);
+//   matrix_t result = {0};
+//   s21_create_matrix(2, 3, &result);
+//   matrix_t true_result = {0};
+//   s21_create_matrix(2, 3, &true_result);
+//   for (int i = 0; i < 2; i++)
 //     for (int j = 0; j < 3; j++) {
-//       a.matrix[i][j] = c++;
+//       a.matrix[i][j] = 2.13243422;
+//       b.matrix[i][j] = 3.3431413598;
+//       true_result.matrix[i][j] = 2.13243422 + 3.3431413598;
 //     }
-//   }
-//       printf("\n");
-//   print_matrix(a);
-//   s21_determinant(&a, &result);
-//       printf("\n");
-//   printf("%lf\n", result);
+//   ck_assert_int_eq(0, s21_sum_matrix(&a, &b, &result));
+//   ck_assert_int_eq(1, s21_eq_matrix(&result, &true_result));
+//   s21_remove_matrix(&a);
+//   s21_remove_matrix(&b);
+//   s21_remove_matrix(&result);
+//   s21_remove_matrix(&true_result);
 // }

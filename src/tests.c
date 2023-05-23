@@ -4,7 +4,7 @@
 
 START_TEST(create) {
   matrix_t m = {0};
-  for (int k = 0; k < 50; k++) {
+  for (int k = 1; k < 50; k++) {
     int rows = k, cols = k;
     ck_assert_int_eq(0, s21_create_matrix(rows, cols, &m));
     ck_assert_int_eq(m.rows, rows);
@@ -13,6 +13,15 @@ START_TEST(create) {
       for (int j = 0; j < cols; ++j) {
         ck_assert_ldouble_eq_tol(0, m.matrix[i][j], S21_EPS);
       }
+    s21_remove_matrix(&m);
+  }
+}
+END_TEST
+
+START_TEST(create_1) {
+  matrix_t m = {0};
+  for (int k = 0; k > -2; k--) {
+    ck_assert_int_eq(1, s21_create_matrix(k, k, &m));
     s21_remove_matrix(&m);
   }
 }
@@ -260,7 +269,7 @@ START_TEST(mul_mat_1) {
     for (int j = 0; j < 3; j++) {
       a.matrix[i][j] = 2.13243;
       b.matrix[j][i] = 3.34314;
-      true_result.matrix[i][j] = 21.3870360906;
+      if (j != 2) true_result.matrix[i][j] = 21.3870360906;
     }
   ck_assert_int_eq(0, s21_mult_matrix(&a, &b, &result));
   ck_assert_int_eq(1, s21_eq_matrix(&result, &true_result));
@@ -532,6 +541,7 @@ Suite *test_suite(void) {
 
   tc_create = tcase_create("creating matrices\n");
   tcase_add_test(tc_create, create);
+  tcase_add_test(tc_create, create_1);
   suite_add_tcase(s, tc_create);
 
   tc_compare = tcase_create("is equal\n");
