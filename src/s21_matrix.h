@@ -5,6 +5,10 @@
 #define FAILURE 0
 #define S21_EPS 1e-6
 
+#define CALCULATION_ERROR 2
+#define ERROR 1
+#define OK 0
+
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
