@@ -349,6 +349,14 @@ START_TEST(transpose_1) {
 }
 END_TEST
 
+START_TEST(transpose_2) {
+  matrix_t result = {0};
+  s21_create_matrix(3, 2, &result);
+  ck_assert_int_eq(1, s21_transpose(NULL, &result));
+  s21_remove_matrix(&result);
+}
+END_TEST
+
 START_TEST(complements_1) {
   matrix_t a = {0};
   s21_create_matrix(3, 3, &a);
@@ -356,29 +364,65 @@ START_TEST(complements_1) {
   s21_create_matrix(3, 3, &result);
   matrix_t true_result = {0};
   s21_create_matrix(3, 3, &true_result);
-  a.matrix[0][0] = 0.73;
-  a.matrix[0][1] = -0.07;
-  a.matrix[0][2] = -0.12;
-  a.matrix[1][0] = -0.19;
-  a.matrix[1][1] = 0.72;
-  a.matrix[1][2] = -0.15;
-  a.matrix[2][0] = -0.12;
-  a.matrix[2][1] = -0.17;
-  a.matrix[2][2] = 0.92;
-  true_result.matrix[0][0] = 0.6369;
-  true_result.matrix[0][1] = 0.0848;
-  true_result.matrix[0][2] = 0.0969;
-  true_result.matrix[1][0] = 0.1928;
-  true_result.matrix[1][1] = 0.6572;
-  true_result.matrix[1][2] = 0.1323;
-  true_result.matrix[2][0] = 0.1187;
-  true_result.matrix[2][1] = 0.1325;
-  true_result.matrix[2][2] = 0.5123;
+  a.matrix[0][0] = 1;
+  a.matrix[0][1] = 2;
+  a.matrix[0][2] = 3;
+  a.matrix[1][0] = 0;
+  a.matrix[1][1] = 4;
+  a.matrix[1][2] = 2;
+  a.matrix[2][0] = 5;
+  a.matrix[2][1] = 2;
+  a.matrix[2][2] = 1;
+  true_result.matrix[0][0] = 0;
+  true_result.matrix[0][1] = 10;
+  true_result.matrix[0][2] = -20;
+  true_result.matrix[1][0] = 4;
+  true_result.matrix[1][1] = -14;
+  true_result.matrix[1][2] = 8;
+  true_result.matrix[2][0] = -8;
+  true_result.matrix[2][1] = -2;
+  true_result.matrix[2][2] = 4;
   ck_assert_int_eq(0, s21_calc_complements(&a, &result));
   ck_assert_int_eq(1, s21_eq_matrix(&result, &true_result));
   s21_remove_matrix(&a);
   s21_remove_matrix(&result);
   s21_remove_matrix(&true_result);
+}
+END_TEST
+
+START_TEST(complements_2) {
+  matrix_t a = {0};
+  s21_create_matrix(1, 1, &a);
+  matrix_t result = {0};
+  s21_create_matrix(1, 1, &result);
+  matrix_t true_result = {0};
+  s21_create_matrix(1, 1, &true_result);
+  a.matrix[0][0] = 0.5;
+  true_result.matrix[0][0] = 0.5;
+  ck_assert_int_eq(0, s21_calc_complements(&a, &result));
+  ck_assert_int_eq(1, s21_eq_matrix(&result, &true_result));
+  s21_remove_matrix(&a);
+  s21_remove_matrix(&result);
+  s21_remove_matrix(&true_result);
+}
+END_TEST
+
+START_TEST(complements_3) {
+  matrix_t result = {0};
+  s21_create_matrix(1, 1, &result);
+  ck_assert_int_eq(1, s21_calc_complements(NULL, &result));
+  s21_remove_matrix(&result);
+}
+END_TEST
+
+START_TEST(complements_4) {
+  matrix_t a = {0};
+  s21_create_matrix(3, 1, &a);
+  matrix_t result = {0};
+  s21_create_matrix(3, 1, &result);
+  ck_assert_int_eq(2, s21_calc_complements(&a, &result));
+  s21_remove_matrix(&a);
+  s21_remove_matrix(&result);
 }
 END_TEST
 
@@ -453,7 +497,7 @@ START_TEST(inv_1) {
   s21_create_matrix(2, 3, &a);
   matrix_t result = {0};
   s21_create_matrix(3, 2, &result);
-  ck_assert_int_eq(1, s21_inverse_matrix(&a, &result));
+  ck_assert_int_eq(2, s21_inverse_matrix(&a, &result));
   s21_remove_matrix(&a);
   s21_remove_matrix(&result);
 }
@@ -523,6 +567,31 @@ START_TEST(inv_4) {
 }
 END_TEST
 
+START_TEST(inv_5) {
+  matrix_t a = {0};
+  s21_create_matrix(1, 1, &a);
+  matrix_t result = {0};
+  s21_create_matrix(1, 1, &result);
+  matrix_t true_result = {0};
+  s21_create_matrix(1, 1, &true_result);
+  a.matrix[0][0] = 0.5;
+  true_result.matrix[0][0] = 1.0 / 0.5;
+  ck_assert_int_eq(0, s21_inverse_matrix(&a, &result));
+  ck_assert_int_eq(1, s21_eq_matrix(&result, &true_result));
+  s21_remove_matrix(&a);
+  s21_remove_matrix(&result);
+  s21_remove_matrix(&true_result);
+}
+END_TEST
+
+START_TEST(inv_6) {
+  matrix_t result = {0};
+  s21_create_matrix(1, 1, &result);
+  ck_assert_int_eq(1, s21_inverse_matrix(NULL, &result));
+  s21_remove_matrix(&result);
+}
+END_TEST
+
 Suite *test_suite(void) {
   Suite *s;
 
@@ -579,10 +648,14 @@ Suite *test_suite(void) {
 
   tc_transpose = tcase_create("transpose\n");
   tcase_add_test(tc_transpose, transpose_1);
+  tcase_add_test(tc_transpose, transpose_2);
   suite_add_tcase(s, tc_transpose);
 
   tc_complements = tcase_create("complements\n");
   tcase_add_test(tc_complements, complements_1);
+  tcase_add_test(tc_complements, complements_2);
+  tcase_add_test(tc_complements, complements_3);
+  tcase_add_test(tc_complements, complements_4);
   suite_add_tcase(s, tc_complements);
 
   tc_det = tcase_create("determinant\n");
@@ -597,6 +670,8 @@ Suite *test_suite(void) {
   tcase_add_test(tc_inv, inv_2);
   tcase_add_test(tc_inv, inv_3);
   tcase_add_test(tc_inv, inv_4);
+  tcase_add_test(tc_inv, inv_5);
+  tcase_add_test(tc_inv, inv_6);
   suite_add_tcase(s, tc_inv);
 
   return s;
